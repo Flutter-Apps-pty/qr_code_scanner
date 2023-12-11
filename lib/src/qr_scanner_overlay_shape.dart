@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class QrScannerOverlayShape extends ShapeBorder {
+  final bool showCenterLine;
+  final Color centerLineColor;
   QrScannerOverlayShape({
     this.borderColor = Colors.red,
     this.borderWidth = 3.0,
@@ -13,17 +15,19 @@ class QrScannerOverlayShape extends ShapeBorder {
     double? cutOutWidth,
     double? cutOutHeight,
     this.cutOutBottomOffset = 0,
+    this.showCenterLine = false,
+    this.centerLineColor = Colors.red,
   })  : cutOutWidth = cutOutWidth ?? cutOutSize ?? 250,
         cutOutHeight = cutOutHeight ?? cutOutSize ?? 250 {
     assert(
-      borderLength <=
-          min(this.cutOutWidth, this.cutOutHeight) / 2 + borderWidth * 2,
-      "Border can't be larger than ${min(this.cutOutWidth, this.cutOutHeight) / 2 + borderWidth * 2}",
+    borderLength <=
+        min(this.cutOutWidth, this.cutOutHeight) / 2 + borderWidth * 2,
+    "Border can't be larger than ${min(this.cutOutWidth, this.cutOutHeight) / 2 + borderWidth * 2}",
     );
     assert(
-        (cutOutWidth == null && cutOutHeight == null) ||
-            (cutOutSize == null && cutOutWidth != null && cutOutHeight != null),
-        'Use only cutOutWidth and cutOutHeight or only cutOutSize');
+    (cutOutWidth == null && cutOutHeight == null) ||
+        (cutOutSize == null && cutOutWidth != null && cutOutHeight != null),
+    'Use only cutOutWidth and cutOutHeight or only cutOutSize');
   }
 
   final Color borderColor;
@@ -76,13 +80,13 @@ class QrScannerOverlayShape extends ShapeBorder {
     final height = rect.height;
     final borderOffset = borderWidth / 2;
     final _borderLength =
-        borderLength > min(cutOutHeight, cutOutHeight) / 2 + borderWidth * 2
-            ? borderWidthSize / 2
-            : borderLength;
+    borderLength > min(cutOutHeight, cutOutHeight) / 2 + borderWidth * 2
+        ? borderWidthSize / 2
+        : borderLength;
     final _cutOutWidth =
-        cutOutWidth < width ? cutOutWidth : width - borderOffset;
+    cutOutWidth < width ? cutOutWidth : width - borderOffset;
     final _cutOutHeight =
-        cutOutHeight < height ? cutOutHeight : height - borderOffset;
+    cutOutHeight < height ? cutOutHeight : height - borderOffset;
 
     final backgroundPaint = Paint()
       ..color = overlayColor
@@ -109,6 +113,24 @@ class QrScannerOverlayShape extends ShapeBorder {
       _cutOutHeight - borderOffset * 2,
     );
 
+    if (showCenterLine) {
+      // Calculate the center position of the cut-out
+      final double centerY = cutOutRect.top + _cutOutHeight / 2;
+
+      // Create a paint object for the center line
+      final linePaint = Paint()
+        ..color = centerLineColor // Use the specified color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1;
+
+      // Draw the horizontal center line
+      canvas.drawLine(
+        Offset(cutOutRect.left, centerY),
+        Offset(cutOutRect.right, centerY),
+        linePaint,
+      );
+    }
+
     canvas
       ..saveLayer(
         rect,
@@ -118,7 +140,7 @@ class QrScannerOverlayShape extends ShapeBorder {
         rect,
         backgroundPaint,
       )
-      // Draw top right corner
+    // Draw top right corner
       ..drawRRect(
         RRect.fromLTRBAndCorners(
           cutOutRect.right - _borderLength,
@@ -129,7 +151,7 @@ class QrScannerOverlayShape extends ShapeBorder {
         ),
         borderPaint,
       )
-      // Draw top left corner
+    // Draw top left corner
       ..drawRRect(
         RRect.fromLTRBAndCorners(
           cutOutRect.left,
@@ -140,7 +162,7 @@ class QrScannerOverlayShape extends ShapeBorder {
         ),
         borderPaint,
       )
-      // Draw bottom right corner
+    // Draw bottom right corner
       ..drawRRect(
         RRect.fromLTRBAndCorners(
           cutOutRect.right - _borderLength,
@@ -151,7 +173,7 @@ class QrScannerOverlayShape extends ShapeBorder {
         ),
         borderPaint,
       )
-      // Draw bottom left corner
+    // Draw bottom left corner
       ..drawRRect(
         RRect.fromLTRBAndCorners(
           cutOutRect.left,
